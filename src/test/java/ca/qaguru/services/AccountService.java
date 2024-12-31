@@ -4,6 +4,7 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -22,9 +23,9 @@ public class AccountService {
                 given()
                         .spec(requestSpecification)
                         .body(requestBody)
-                        .when()
+                .when()
                         .post()
-                        .then()
+                .then()
                         .log().all()
                         .assertThat()
                         .statusCode(HttpStatus.SC_CREATED);
@@ -32,7 +33,7 @@ public class AccountService {
         return id;
     }
 
-    public ValidatableResponse getAccountById(int id, Map<String, Object> requestBody) {
+    public void getAccountById(int id, Map<String, Object> requestBody) {
         ValidatableResponse validatableResponse =
         given()
                 .spec(requestSpecification)
@@ -44,6 +45,21 @@ public class AccountService {
                 .body("id",equalTo(id))
                 .body("accountHolderName", is(requestBody.get("accountHolderName")))
                 .body("balance", is(((Number)requestBody.get("balance")).floatValue()));
-        return validatableResponse;
+
+    }
+
+    public void deposit(int id, float depositAmt) {
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put("amount",depositAmt);
+        given()
+                .spec(requestSpecification)
+                .body(requestBody)
+        .when()
+                .put("/deposit/"+id)
+        .then()
+                .log().all()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK);
+
     }
 }

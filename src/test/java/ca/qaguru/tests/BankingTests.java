@@ -46,5 +46,25 @@ public class BankingTests extends TestBase {
         int id  = accountService.addAccount(requestBody);
         accountService.getAccountById(id,requestBody);
     }
+    @Test
+    public void deposit(){
+        Faker faker= new Faker();
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("accountHolderName", faker.name().firstName());
+        requestBody.put("balance", faker.number().randomDouble(2,1000,50000));
+
+        AccountService accountService = new AccountService(requestSpecification);
+        //Add account
+        int id  = accountService.addAccount(requestBody);
+        //Deposit
+        float depositAmt = 500f;
+        accountService.deposit(id,depositAmt);
+
+        //Get Account by id
+        requestBody.put("balance",((Number)requestBody.get("balance")).floatValue()+depositAmt);
+        accountService.getAccountById(id,requestBody);
+
+    }
+
 
 }
