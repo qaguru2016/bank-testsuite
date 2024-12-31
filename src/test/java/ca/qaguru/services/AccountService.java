@@ -33,7 +33,7 @@ public class AccountService {
         return id;
     }
 
-    public void getAccountById(int id, Map<String, Object> requestBody) {
+    public void getAccountById(int id, int expStatusCode, Map<String, Object> requestBody) {
         ValidatableResponse validatableResponse =
         given()
                 .spec(requestSpecification)
@@ -41,10 +41,14 @@ public class AccountService {
                 .get("/"+id)
                 .then()
                 .log().all()
-                .assertThat().statusCode(HttpStatus.SC_OK)
-                .body("id",equalTo(id))
-                .body("accountHolderName", is(requestBody.get("accountHolderName")))
-                .body("balance", is(((Number)requestBody.get("balance")).floatValue()));
+                .assertThat().statusCode(expStatusCode);
+
+        if(expStatusCode == HttpStatus.SC_OK){
+            validatableResponse
+                    .body("id",equalTo(id))
+                    .body("accountHolderName", is(requestBody.get("accountHolderName")))
+                    .body("balance", is(((Number)requestBody.get("balance")).floatValue()));
+        }
 
     }
 
@@ -75,5 +79,15 @@ public class AccountService {
                 .log().all()
                 .assertThat()
                 .statusCode(HttpStatus.SC_OK);
+    }
+
+    public void deleteAccountById(int id) {
+        given()
+                .spec(requestSpecification)
+                .when()
+                .delete("/"+id)
+                .then()
+                .log().all()
+                .assertThat().statusCode(HttpStatus.SC_OK);
     }
 }

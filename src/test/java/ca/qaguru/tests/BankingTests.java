@@ -44,7 +44,7 @@ public class BankingTests extends TestBase {
 
         AccountService accountService = new AccountService(requestSpecification);
         int id  = accountService.addAccount(requestBody);
-        accountService.getAccountById(id,requestBody);
+        accountService.getAccountById(id, HttpStatus.SC_OK, requestBody);
     }
     @Test
     public void deposit(){
@@ -62,7 +62,7 @@ public class BankingTests extends TestBase {
 
         //Get Account by id
         requestBody.put("balance",((Number)requestBody.get("balance")).floatValue()+depositAmt);
-        accountService.getAccountById(id,requestBody);
+        accountService.getAccountById(id, HttpStatus.SC_OK, requestBody);
 
     }
     @Test
@@ -75,16 +75,30 @@ public class BankingTests extends TestBase {
         AccountService accountService = new AccountService(requestSpecification);
         //Add account
         int id  = accountService.addAccount(requestBody);
-        //Deposit
+        //Withdraw
         float withdrawalAmt = 500f;
         accountService.withdraw(id,withdrawalAmt);
 
         //Get Account by id
         requestBody.put("balance",((Number)requestBody.get("balance")).floatValue()-withdrawalAmt);
-        accountService.getAccountById(id,requestBody);
+        accountService.getAccountById(id, HttpStatus.SC_OK, requestBody);
 
     }
+    @Test
+    public void deleteAccount(){
+        Faker faker= new Faker();
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("accountHolderName", faker.name().firstName());
+        requestBody.put("balance", faker.number().randomDouble(2,1000,50000));
 
+        AccountService accountService = new AccountService(requestSpecification);
+        //Add account
+        int id  = accountService.addAccount(requestBody);
+        //Delete Account
+        accountService.deleteAccountById(id);
 
+        //Get Account by id
+        accountService.getAccountById(id,HttpStatus.SC_INTERNAL_SERVER_ERROR,null);
+    }
 
 }
